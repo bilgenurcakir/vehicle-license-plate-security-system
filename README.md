@@ -281,15 +281,137 @@ if tum_adaylar:
 
 
 ```
+plakayı farklı ölçekler ve ön işlemeyle ocr'a vererek en güvenli seçeneği bulur.
+
+``` python
+def vlm_ile_arac_analizi(arac_crop):
+    try:
+        rgb_img = cv2.cvtColor(arac_crop, cv2.COLOR_BGR2RGB)
+        pil_img = Image.fromarray(rgb_img)
+
+        target_size = 224 if device == "cpu" else 384
+        pil_img = pil_img.resize((target_size, target_size), Image.LANCZOS)
+
+        inputs = processor(images=pil_img, return_tensors="pt").to(device)
+
+        outputs = vlm_model.generate(
+            **inputs,
+            max_new_tokens=60 if device == "cpu" else 80,
+            num_beams=3 if device == "cpu" else 5,
+            repetition_penalty=1.3,
+            length_penalty=1.2,
+            early_stopping=True,
+            do_sample=False
+        )
+
+        caption = processor.decode(
+            outputs[0],
+            skip_special_tokens=True
+        ).upper().strip()
+        tipler = {
+            'OTOBÜS': ['BUS', 'MINIBUS'],
+            'KAMYON': ['TRUCK', 'LORRY', 'VAN'],
+            'SEDAN': ['SEDAN'],
+            'SUV': ['SUV', 'JEEP'],
+            'HATCHBACK': ['HATCHBACK'],
+            'OTOMOBİL': ['CAR', 'VEHICLE']
+        }
+
+        tespit_edilen_tip = None
+        for tip, anahtarlar in tipler.items():
+            if any(a in caption for a in anahtarlar):
+                tespit_edilen_tip = tip
+                break
+        markalar = [
+            'BMW', 'MERCEDES', 'AUDI', 'TOYOTA',
+            'HONDA', 'FORD', 'VOLKSWAGEN',
+            'RENAULT', 'FIAT', 'OPEL'
+        ]
+
+        tespit_edilen_marka = None
+        for marka in markalar:
+            if marka in caption:
+                tespit_edilen_marka = marka
+                break
+        yorum = []
+        if tespit_edilen_renk:
+            yorum.append(tespit_edilen_renk)
+        if tespit_edilen_marka:
+            yorum.append(tespit_edilen_marka)
+        if tespit_edilen_tip:
+            yorum.append(tespit_edilen_tip)
+
+        return " ".join(yorum) if yorum else "DETAY TESPİT EDİLEMEDİ"
+
+    except:
+        return "ANALİZ BAŞARISIZ"
+
+```
+blip modeline araç görselini vererek açıklama ürettirir (renk, model, hareket durumu)
 
 
 
-## 🧠 Technologies
-- Python
-- YOLOv8 (Ultralytics)
-- EasyOCR
-- OpenCV
-- SQLite
-- BLIP (HuggingFace)
+``` python
+def guvenli_crop(img, x1, y1, x2, y2, pad=30):
+    h, w = img.shape[:2]
+    return img[
+        max(0, y1 - pad):min(h, y2 + pad),
+        max(0, x1 - pad):min(w, x2 + pad)
+    ]
 
-## 📂 Project Structure
+```
+yolonun verdiği bounding boxlar dar olabileceği için alanı genişletir.
+
+
+
+``` python
+def final_guvenlik_denetimi(resim_yolu):
+    db_hazirla()
+    frame = cv2.imread(resim_yolu)
+
+    if frame is None:
+        return
+
+```
+ana sistem çalışınca veritabanı hazırlanır,  test görüntüleri okunur
+
+
+``` python
+    results = coco_model(frame, conf=0.5, verbose=False)
+
+    for r in results[0].boxes:
+        label = coco_model.names[int(r.cls[0])]
+        if label not in ["car", "bus", "truck"]:
+            continue
+        x1, y1, x2, y2 = map(int, r.xyxy[0])
+        arac_crop = guvenli_crop(frame, x1, y1, x2, y2)
+
+        plates = license_plate_detector(arac_crop, conf=0.3, verbose=False)
+        plaka = "OKUNAMADI"
+
+        if plates[0].boxes:
+            px1, py1, px2, py2 = map(int, plates[0].boxes[0].xyxy[0])
+            plaka = plaka_oku_coklu_deneme(
+                arac_crop[py1:py2, px1:px2]
+            )
+        vlm_yorum = vlm_ile_arac_analizi(arac_crop)
+
+        izinli = plaka_izinli_mi(plaka)
+        karar = "ONAY VERİLDİ" if izinli else "REDDEDİLDİ"
+
+        log_kaydet(plaka, label.upper(), vlm_yorum, karar)
+
+if __name__ == "__main__":
+    images_dir = os.path.join(BASE_DIR, "images")
+
+    if os.path.exists(images_dir):
+        for img in os.listdir(images_dir):
+            if img.lower().endswith(('.jpg', '.png', '.jpeg')):
+                final_guvenlik_denetimi(
+                    os.path.join(images_dir, img)
+                )
+```
+image klasöründeki tüm görseller için,
+yolo ile tespit yapılır
+plaka tespit edilir ve ocr ile okunur
+izin kontrolü yapılır sonuçlar loglanır
