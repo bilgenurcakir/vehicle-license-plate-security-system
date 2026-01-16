@@ -1,4 +1,17 @@
 # 🚗 Vehicle License Plate Security System
+
+# BTK akademi sertifikası
+
+
+# tübitak 2209A başvurusu
+
+
+
+# proje videosu
+
+
+
+
 YOLOv8, OCR ve BLIP kullanarak araçları tespit eden, plakalarını okuyan ve izin kontrolü yapan bir güvenlik sistemi.
 
 
@@ -15,6 +28,7 @@ analiz edilen araçlara ait raporlama
 
 
 izin durumu kontrolü için veritabanı
+
 
 
 # proje yapısı
@@ -37,9 +51,14 @@ izin durumu kontrolü için veritabanı
 └── guvenlik_sistemi.db  # izin durumlarını ve geçişleri tutan veritabanı
 ```
 
+
+
+
 # yolo_train.py dosyası detayları
 
 YOLOv8 sınıflandırma modelini eğitmek için kullanılır. Ham veriyi temizler ve model eğitimini gerçekleştirir.
+
+
 ```python
 import os
 import shutil
@@ -48,6 +67,8 @@ import hashlib
 from ultralytics import YOLO
 ```
 gerekli kütüphaneler eklendi.
+
+
 ```python
 def dosya_hash_hesapla(dosya_yolu):
     """Dosyanın içeriğine göre benzersiz bir parmak izi (hash) oluşturur."""
@@ -57,6 +78,8 @@ def dosya_hash_hesapla(dosya_yolu):
     return hasher.hexdigest()
 ```
 hash hesaplama ile her görsele ait özel bir hash oluşturduk böylece aynı görselin birden fazla kez dataset'e eklenmesinin önüne geçtik.
+
+
 ```python
 
 def dosya_hash_hesapla(dosya_yolu):
@@ -69,6 +92,7 @@ def dosya_hash_hesapla(dosya_yolu):
 ```
 bir hedef dizin oluşturduk, datasetimizi buraya yerleştireceğiz.
 
+
 ```python
  siniflar = ['bus', 'car', 'truck']
 for sinif in siniflar:
@@ -78,6 +102,7 @@ for sinif in siniflar:
 ```
 kullanılacak sınıflar tanımlandı.
 Her sınıf için döngü başlatıldı, kaynak klasörün yolu oluşturuldu ve klasör yoksa bir sonrakine geçti
+
 
 ```python
 benzersiz_resimler = []
@@ -94,6 +119,7 @@ benzersiz_resimler = []
                 benzersiz_resimler.append(dosya)
 ```
 dosyaları kontrol etti, hashleri hesapladı böylece birden fazla aynı görsel varsa sadece birini aldı.
+
 
 ```python
 random.shuffle(benzersiz_resimler)
@@ -112,6 +138,7 @@ for i, img in enumerate(benzersiz_resimler):
 ```
 görselleri rastgele biçimde train ve val olarak böldü.
 
+
 ```python
 if __name__ == "__main__":
     # Dataset'i hazırla
@@ -129,6 +156,8 @@ if __name__ == "__main__":
 ```
 üstteki fonksiyonları çalıştırarak ham_veriler içerisindeki görselleri Dataset klasörü içerisine yolonun istediği formatta (train ve val klasörleri halinde ) gönderdi.
 yolo8n classification modelini kullanarak eğitime başladı.
+
+
 
 # main.py dosyası detayları
 
@@ -157,6 +186,7 @@ print(f"🔧 Kullanılan cihaz: {device}")
 ```
 kütüphaneler eklendi, gerekli dizin ayarları ve kullanılacak cihaz seçimleri yapıldı 
 
+
 ```python
 reader = easyocr.Reader(['en', 'tr'], gpu=(device == "cuda"))
 coco_model = YOLO(os.path.join(BASE_DIR, "yolov8n.pt"))
@@ -166,6 +196,7 @@ vlm_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-
 
 ```
 gerekli modeller yüklendi.
+
 
 ```python
 def db_hazirla():
@@ -184,6 +215,7 @@ ornek_plakalar = [("07EC605",), ("66LC114",)]
 
 ```
 veri tabanı oluşturuldu, izinli araç plakaları ve geçiş logları oluşturuldu
+
 
 ```python
 def plaka_izinli_mi(plaka):
@@ -224,6 +256,8 @@ bilateral = cv2.bilateralFilter(gray, 11, 17, 17)
 ```
 plaka ön işlemeden geçirildi (gri formata getirildi, kontrası arttırdı, fürültü azaltıldı,ikili görsel oluşturuldu)
 
+
+
 ```python
 def turk_plaka_formatla(text):
     text = text.replace("TR", "").replace(" ", "").upper()
@@ -250,6 +284,7 @@ num = kalan[len(harf):]
 türk plakasını kabul eecek biçimde formatlandı ( tr ülke kodu ve boşluklar kaldırıldı tüm harfler büyük yapıldı, il kodu çıkarıldı [34 ABC kabul edilsin , 342 ABC reddedilsin] , ilden sonra gelen harfler toplandı, harflerden sonraki kısım sadece sayılardan oluşmalı)
 
 not: bu sistem ocr'ın plakadaki sayı ve harfleri okuyabilmesinden ancak birleştirmemesinden ayrıca resim içerisindeki farklı kelimeleri plaka olarak kabul etmesinden dolayı oluşturulmuştur.
+
 
 
 ```python
@@ -294,6 +329,8 @@ if tum_adaylar:
 
 ```
 plakayı farklı ölçekler ve ön işlemeyle ocr'a vererek en güvenli seçeneği bulur.
+
+
 
 ``` python
 def vlm_ile_arac_analizi(arac_crop):
@@ -427,3 +464,10 @@ image klasöründeki tüm görseller için,
 yolo ile tespit yapılır
 plaka tespit edilir ve ocr ile okunur
 izin kontrolü yapılır sonuçlar loglanır
+
+
+# test görsel çıktıları
+
+
+
+
