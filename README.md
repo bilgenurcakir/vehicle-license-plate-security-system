@@ -6,6 +6,7 @@ araç renk, tip ve hareket durumuna göre analiz yapan VLM modeli
 analiz edilen araçlara ait raporlama
 izin durumu kontrolü için veritabanı
 
+```python 
 # proje yapısı
 ├── main.py               # Ana sistem
 ├── yolo_train.py         # Model eğitimi
@@ -22,7 +23,7 @@ izin durumu kontrolü için veritabanı
         └──val
       
 └── guvenlik_sistemi.db  # izin durumlarını ve geçişleri tutan veritabanı
-
+```
 
 # yolo_train.py dosyası detayları
 
