@@ -1,5 +1,7 @@
 # 🚗 Vehicle License Plate Security System
 YOLOv8, OCR ve BLIP kullanarak araçları tespit eden, plakalarını okuyan ve izin kontrolü yapan bir güvenlik sistemi.
+
+
 Araç tespiti: araba, otobüs, kamyon
 plaka tespiti: türk plakaları için optimize edilmis OCR
 araç renk, tip ve hareket durumuna göre analiz yapan VLM modeli
