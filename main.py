@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Geliştirilmiş Araç Tespit ve Plaka Okuma Sistemi
-PYCHARM / LOCAL VERSION - FINAL STABLE
-"""
+
 
 import cv2
 import os
@@ -17,23 +13,22 @@ import easyocr
 from ultralytics import YOLO
 from transformers import BlipProcessor, BlipForConditionalGeneration
 
-# ================================
-# YEREL DİZİN AYARLARI
-# ================================
+
+# yerel dizin ayarları-- kendi yolo8n_cls modelimizi kullanabilmek için
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
 
-# ================================
-# DEVICE
-# ================================
+
+# cihaz seçimi
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🔧 Kullanılan cihaz: {device}")
 
-# ================================
-# MODELLER
-# ================================
+
+# modelleri ekle
 reader = easyocr.Reader(['en', 'tr'], gpu=(device == "cuda"))
 coco_model = YOLO(os.path.join(BASE_DIR, "yolov8n.pt"))
 license_plate_detector = YOLO(os.path.join(BASE_DIR, "models", "license_plate_detector.pt"))
@@ -42,9 +37,8 @@ processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base
 vlm_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base").to(device)
 
 
-# ================================
-# VERİTABANI
-# ================================
+
+# database kurulumu
 def db_hazirla():
     conn = sqlite3.connect("guvenlik_sistemi.db")
     c = conn.cursor()
@@ -53,7 +47,7 @@ def db_hazirla():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         plaka TEXT, arac_tipi TEXT, vlm_yorum TEXT, durum TEXT, tarih TEXT, saat TEXT
     )""")
-    # Örnek plaka listesi (Seninkiler burada olmalı)
+    # izin verilecek plakalar
     ornek_plakalar = [("07EC605",), ("66LC114",)]
     c.executemany("INSERT OR IGNORE INTO izinli_plakalar VALUES (?)", ornek_plakalar)
     conn.commit()
@@ -81,9 +75,9 @@ def log_kaydet(plaka, tip, vlm, durum):
     conn.close()
 
 
-# ================================
-# PLAKA FORMAT & OCR
-# ================================
+
+# plaka formatlama ve ocr'a verme
+
 def plaka_on_isleme(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # 1. CLAHE ile kontrast iyileştirme
@@ -95,7 +89,7 @@ def plaka_on_isleme(img):
 
 
 def turk_plaka_formatla(text):
-    # Katı yapıyı bozmadan TR ve boşluk temizliği
+    # TR ve boşluk temizliği
     text = text.replace("TR", "").replace(" ", "").upper()
 
     il = ""
@@ -132,7 +126,7 @@ def plaka_oku_coklu_deneme(plate_crop):
             results = reader.readtext(img, allowlist="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ ", paragraph=True)
 
             for res in results:
-                # UNPACK HATASI ÇÖZÜMÜ: paragraph=True modunda 2 veya 3 değer gelebilir
+               
                 if len(res) == 3:
                     _, text, conf = res
                 elif len(res) == 2:
@@ -161,9 +155,8 @@ def plaka_oku_coklu_deneme(plate_crop):
     return "OKUNAMADI"
 
 
-# ================================
-# VLM (RENK VE DETAY ODAKLI)
-# ================================
+
+# VLM-BLIP
 def vlm_ile_arac_analizi(arac_crop):
     """VLM kullanarak aracın özelliklerini detaylı çıkar"""
     try:
@@ -193,7 +186,7 @@ def vlm_ile_arac_analizi(arac_crop):
         print(f"✓")
         print(f"      Ham VLM: {caption}")
 
-        # Renk, tip, marka çıkarımı (önceki kod ile aynı)
+       
         renkler = {
             'BEYAZ': ['WHITE', 'SNOW', 'PEARL'],
             'SİYAH': ['BLACK', 'DARK', 'EBONY'],
@@ -267,9 +260,9 @@ def guvenli_crop(img, x1, y1, x2, y2, pad=30):
     return img[max(0, y1 - pad):min(h, y2 + pad), max(0, x1 - pad):min(w, x2 + pad)]
 
 
-# ================================
-# ANA SİSTEM
-# ================================
+
+# ana sistem
+
 def final_guvenlik_denetimi(resim_yolu):
     db_hazirla()
     frame = cv2.imread(resim_yolu)
