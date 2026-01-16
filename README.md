@@ -1,7 +1,7 @@
 
 
 # BTK akademi sertifikası
-![Açıklama](GitHub_readme_img/1])
+![Açıklama](GitHub_readme_img/1.png)
 
 # tübitak 2209A başvurusu
 
