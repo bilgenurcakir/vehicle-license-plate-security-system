@@ -4,7 +4,7 @@
 ![Açıklama](GitHub_readme_img/1.png)
 
 # tübitak 2209A başvurusu
-
+![Açıklama](GitHub_readme_img/2.png)
 
 
 # proje videosu
@@ -468,7 +468,11 @@ izin kontrolü yapılır sonuçlar loglanır
 
 
 # test görsel çıktıları
-
-
+![Açıklama](GitHub_readme_img/3.png)
+![Açıklama](GitHub_readme_img/4.png)
+![Açıklama](GitHub_readme_img/5.png)
+![Açıklama](GitHub_readme_img/6.png)
+![Açıklama](GitHub_readme_img/7.png)
+![Açıklama](GitHub_readme_img/8.png)
 
 
