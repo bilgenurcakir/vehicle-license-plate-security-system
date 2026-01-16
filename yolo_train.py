@@ -57,13 +57,13 @@ def temiz_dataset_olustur(kaynak_dizin, hedef_dizin, train_orani=0.8):
 
 
 if __name__ == "__main__":
-    # 1️⃣ Dataset'i hazırla
+    # Dataset'i hazırla
     temiz_dataset_olustur(
         kaynak_dizin="ham_veriler",
         hedef_dizin="dataset"
     )
 
-    # 2️⃣ YOLOv8 Classification eğitimi
+    #  YOLOv8 Classification eğitimi
     model = YOLO("yolov8n-cls.pt")
     model.train(
         data="dataset",
