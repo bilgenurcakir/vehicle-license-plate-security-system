@@ -3,10 +3,19 @@ YOLOv8, OCR ve BLIP kullanarak araçları tespit eden, plakalarını okuyan ve i
 
 
 Araç tespiti: araba, otobüs, kamyon
+
+
 plaka tespiti: türk plakaları için optimize edilmis OCR
+
+
 araç renk, tip ve hareket durumuna göre analiz yapan VLM modeli
+
+
 analiz edilen araçlara ait raporlama
+
+
 izin durumu kontrolü için veritabanı
+
 
 ```python 
 # proje yapısı
