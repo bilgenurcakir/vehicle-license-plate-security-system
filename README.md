@@ -17,6 +17,7 @@ analiz edilen araçlara ait raporlama
 izin durumu kontrolü için veritabanı
 
 
+# proje yapısı
 ```python 
 # proje yapısı
 ├── main.py               # Ana sistem
