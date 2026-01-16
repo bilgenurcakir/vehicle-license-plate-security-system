@@ -1,4 +1,4 @@
-# 🚗 Vehicle License Plate Security System
+
 
 # BTK akademi sertifikası
 
@@ -8,9 +8,10 @@
 
 
 # proje videosu
+[![Videoyu izle](https://img.youtube.com/vi/gvkAfTP_aAs/maxresdefault.jpg)](https://youtu.be/gvkAfTP_aAs)
 
 
-
+#  Vehicle License Plate Security System
 
 YOLOv8, OCR ve BLIP kullanarak araçları tespit eden, plakalarını okuyan ve izin kontrolü yapan bir güvenlik sistemi.
 
