@@ -170,29 +170,24 @@ yolo8n classification modelini kullanarak eğitime başladı.
 
 # main.py dosyası detayları
 
-Araç Tespiti (Object Detection)
-
+Araç Tespiti (Object Detection):
 eğitilen modeli kullanılarak karedeki nesneler bulunur.
 
-Plaka Tespiti ve OCR 
-
+Plaka Tespiti ve OCR :
 Segmentasyon: Araç görseli içerisinden plaka bölgesi (license_plate_detector.pt) ile tespit edilir.
 Görüntü İyileştirme: Plaka okunmadan önce CLAHE (kontrast artırma) ve Otsu Threshold (ikili siyah-beyaz görüntü) teknikleriyle temizlenir.
 Gelişmiş Okuma: EasyOCR ile farklı ölçeklerde denemeler yapılır.
 Format Kontrolü: Okunan metin, Türk plaka formatına uygunluk açısından bir kontrol mekanizmasından geçer.
 
-Görsel Dil Modeli (VLM) Analizi
-
+Görsel Dil Modeli (VLM) Analizi:
 (Salesforce/blip-image-captioning-base) modeli kullanılarak araç hakkında renk model ve hareket bilgilerinden açıklama üretilir.
 
 
-Karar Verme
-
+Karar Verme:
 SQLite veri tabanındaki "izinli_plakalar" tablosu kontrol edilir.
 Eğer plaka listede varsa ve kamyon değilse ONAY VERİLDİ yoksa ya da  okunamadıysa REDDEDİLDİ kararı verilir.
 
-Kayıt  ve Görselleştirme
-
+Kayıt  ve Görselleştirme:
 Plaka, araç tipi, VLM yorumu,geçiş bilgisi, tarih ve saat bilgileri gecis_loglari tablosuna kaydedilir.
 Matplotlib ile sonuçlar kullanıcıya görsel olarak sunulur.
 
