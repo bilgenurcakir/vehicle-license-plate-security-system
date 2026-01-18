@@ -13,7 +13,7 @@
 
 #  Vehicle License Plate Security System
 
-YOLOv8, OCR ve BLIP kullanarak araçları tespit eden, plakalarını okuyan ve izin kontrolü yapan bir güvenlik sistemi.
+projenin amacı,otopark girişlerinde araçları türlerine göre ayırt eden(YOLOv8), plakalarını okuyan(OCR) ve görsel dil modelleri (VLM-BLIP) kullanarak araç hakkında detaylı açıklama (renk, marka, durum) yapan bir güvenlik sistemi oluşturmaktır.Tespit edilen verileri kayıtlı bir database ile  karşılaştırarak otomatik geçiş onayı (Check-in) verir ve tüm süreci database'e loglar.
 
 
 Araç tespiti: araba, otobüs, kamyon
@@ -53,11 +53,19 @@ izin durumu kontrolü için veritabanı
 ```
 
 
+#teknik detaylar
+
 
 
 # yolo_train.py dosyası detayları
 
 YOLOv8 sınıflandırma modelini eğitmek için kullanılır. Ham veriyi temizler ve model eğitimini gerçekleştirir.
+
+Veri Temizliği : hashlib kullanılarak aynı içeriğe sahip görsellerden sadece biri kulllanılır.
+
+Veri Seti Bölümleme: Veriler %80 eğitim (train) ve %20 doğrulama (val) olarak rastgele karıştırılarak ayrılır.
+
+YOLOv8  Eğitimi: yolov8n-cls.pt modeli kullanılarak otobüs, araba ve kamyon sınıfları üzerine özel bir eğitim gerçekleştirilir.
 
 
 ```python
@@ -161,6 +169,32 @@ yolo8n classification modelini kullanarak eğitime başladı.
 
 
 # main.py dosyası detayları
+
+Araç Tespiti (Object Detection)
+
+eğitilen modeli kullanılarak karedeki nesneler bulunur.
+
+Plaka Tespiti ve OCR 
+
+Segmentasyon: Araç görseli içerisinden plaka bölgesi (license_plate_detector.pt) ile tespit edilir.
+Görüntü İyileştirme: Plaka okunmadan önce CLAHE (kontrast artırma) ve Otsu Threshold (ikili siyah-beyaz görüntü) teknikleriyle temizlenir.
+Gelişmiş Okuma: EasyOCR ile farklı ölçeklerde denemeler yapılır.
+Format Kontrolü: Okunan metin, Türk plaka formatına uygunluk açısından bir kontrol mekanizmasından geçer.
+
+Görsel Dil Modeli (VLM) Analizi
+
+(Salesforce/blip-image-captioning-base) modeli kullanılarak araç hakkında renk model ve hareket bilgilerinden açıklama üretilir.
+
+
+Karar Verme
+
+SQLite veri tabanındaki "izinli_plakalar" tablosu kontrol edilir.
+Eğer plaka listede varsa ve kamyon değilse ONAY VERİLDİ yoksa ya da  okunamadıysa REDDEDİLDİ kararı verilir.
+
+Kayıt  ve Görselleştirme
+
+Plaka, araç tipi, VLM yorumu,geçiş bilgisi, tarih ve saat bilgileri gecis_loglari tablosuna kaydedilir.
+Matplotlib ile sonuçlar kullanıcıya görsel olarak sunulur.
 
 ```python
 import cv2
