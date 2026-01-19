@@ -89,6 +89,9 @@ def dosya_hash_hesapla(dosya_yolu):
 hash hesaplama ile her görsele ait özel bir hash oluşturduk böylece aynı görselin birden fazla kez dataset'e eklenmesinin önüne geçtik.
 
 
+
+
+
 ```python
 
 def dosya_hash_hesapla(dosya_yolu):
@@ -102,6 +105,9 @@ def dosya_hash_hesapla(dosya_yolu):
 bir hedef dizin oluşturduk, datasetimizi buraya yerleştireceğiz.
 
 
+
+
+
 ```python
  siniflar = ['bus', 'car', 'truck']
 for sinif in siniflar:
@@ -111,6 +117,9 @@ for sinif in siniflar:
 ```
 kullanılacak sınıflar tanımlandı.
 Her sınıf için döngü başlatıldı, kaynak klasörün yolu oluşturuldu ve klasör yoksa bir sonrakine geçti
+
+
+
 
 
 ```python
@@ -130,6 +139,9 @@ benzersiz_resimler = []
 dosyaları kontrol etti, hashleri hesapladı böylece birden fazla aynı görsel varsa sadece birini aldı.
 
 
+
+
+
 ```python
 random.shuffle(benzersiz_resimler)
         sinir = int(len(benzersiz_resimler) * train_orani)
@@ -146,6 +158,9 @@ for i, img in enumerate(benzersiz_resimler):
 
 ```
 görselleri rastgele biçimde train ve val olarak böldü.
+
+
+
 
 
 ```python
@@ -168,7 +183,10 @@ yolo8n classification modelini kullanarak eğitime başladı.
 
 
 
+
+
 # main.py dosyası detayları
+
 
 Araç Tespiti (Object Detection):
 eğitilen modeli kullanılarak karedeki nesneler bulunur.
@@ -190,6 +208,7 @@ Eğer plaka listede varsa ve kamyon değilse ONAY VERİLDİ yoksa ya da  okunama
 Kayıt  ve Görselleştirme:
 Plaka, araç tipi, VLM yorumu,geçiş bilgisi, tarih ve saat bilgileri gecis_loglari tablosuna kaydedilir.
 Matplotlib ile sonuçlar kullanıcıya görsel olarak sunulur.
+
 
 ```python
 import cv2
@@ -217,6 +236,9 @@ print(f"🔧 Kullanılan cihaz: {device}")
 kütüphaneler eklendi, gerekli dizin ayarları ve kullanılacak cihaz seçimleri yapıldı 
 
 
+
+
+
 ```python
 reader = easyocr.Reader(['en', 'tr'], gpu=(device == "cuda"))
 coco_model = YOLO(os.path.join(BASE_DIR, "yolov8n.pt")) # eğitilen modeli kullan, bulamazsan hazır eğitişmiş olanı kullan
@@ -226,6 +248,9 @@ vlm_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-
 
 ```
 gerekli modeller yüklendi.
+
+
+
 
 
 ```python
@@ -247,6 +272,9 @@ ornek_plakalar = [("07EC605",), ("66LC114",)]
 veri tabanı oluşturuldu, izinli araç plakaları ve geçiş logları oluşturuldu
 
 
+
+
+
 ```python
 def plaka_izinli_mi(plaka):
     if not plaka or plaka == "OKUNAMADI": return False
@@ -260,6 +288,8 @@ conn = sqlite3.connect("guvenlik_sistemi.db")
 ```
  veritabanına bağlanıp plakanın izinli olup olmadığı kontrol edildi.
  
+
+
 
 
 ```python
@@ -276,6 +306,9 @@ c.execute("""INSERT INTO gecis_loglari (plaka, arac_tipi, vlm_yorum, durum, tari
 veritabanına bağlanarak o güne ait tarih ve saatle birlikte gelen aracın bilgilerini loglandı.
 
 
+
+
+
 ```python
 def plaka_on_isleme(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -285,6 +318,8 @@ bilateral = cv2.bilateralFilter(gray, 11, 17, 17)
     return [clahe, thresh]
 ```
 plaka ön işlemeden geçirildi (gri formata getirildi, kontrası arttırdı, fürültü azaltıldı,ikili görsel oluşturuldu)
+
+
 
 
 
@@ -314,6 +349,8 @@ num = kalan[len(harf):]
 türk plakasını kabul eecek biçimde formatlandı ( tr ülke kodu ve boşluklar kaldırıldı tüm harfler büyük yapıldı, il kodu çıkarıldı [34 ABC kabul edilsin , 342 ABC reddedilsin] , ilden sonra gelen harfler toplandı, harflerden sonraki kısım sadece sayılardan oluşmalı)
 
 not: bu sistem ocr'ın plakadaki sayı ve harfleri okuyabilmesinden ancak birleştirmemesinden ayrıca resim içerisindeki farklı kelimeleri plaka olarak kabul etmesinden dolayı oluşturulmuştur.
+
+
 
 
 
@@ -359,6 +396,8 @@ if tum_adaylar:
 
 ```
 plakayı farklı ölçekler ve ön işlemeyle ocr'a vererek en güvenli seçeneği bulur.
+
+
 
 
 
@@ -430,6 +469,8 @@ blip modeline araç görselini vererek açıklama ürettirir (renk, model, harek
 
 
 
+
+
 ``` python
 def guvenli_crop(img, x1, y1, x2, y2, pad=30):
     h, w = img.shape[:2]
@@ -443,6 +484,8 @@ def guvenli_crop(img, x1, y1, x2, y2, pad=30):
 
 
 
+
+
 ``` python
 def final_guvenlik_denetimi(resim_yolu):
     db_hazirla()
@@ -453,6 +496,9 @@ def final_guvenlik_denetimi(resim_yolu):
 
 ```
 ana sistem çalışınca veritabanı hazırlanır,  test görüntüleri okunur
+
+
+
 
 
 ``` python
@@ -494,6 +540,7 @@ image klasöründeki tüm görseller için,
 yolo ile tespit yapılır
 plaka tespit edilir ve ocr ile okunur
 izin kontrolü yapılır sonuçlar loglanır
+
 
 
 # test görsel çıktıları
