@@ -13,7 +13,7 @@
 
 #  Vehicle License Plate Security System
 
-projenin amacı,otopark girişlerinde araçları türlerine göre ayırt eden(YOLOv8), plakalarını okuyan(OCR) ve görsel dil modelleri (VLM-BLIP) kullanarak araç hakkında detaylı açıklama (renk, marka, durum) yapan bir güvenlik sistemi oluşturmaktır.Tespit edilen verileri kayıtlı bir database ile  karşılaştırarak otomatik geçiş onayı (Check-in) verir ve tüm süreci database'e loglar.
+projenin amacı,otopark girişlerinde araçları türlerine göre ayırt eden(YOLOv8), plakalarını okuyan(OCR) ve görsel dil modelleri (VLM-BLIP) kullanarak araç hakkında detaylı açıklama (renk, marka, durum) yapan bir güvenlik sistemi oluşturmaktır.Tespit edilen verileri kayıtlı bir database ile  karşılaştırarak otomatik geçiş onayı verir ve tüm süreci database'e loglar.
 
 
 Araç tespiti: araba, otobüs, kamyon
@@ -180,7 +180,7 @@ Gelişmiş Okuma: EasyOCR ile farklı ölçeklerde denemeler yapılır.
 Format Kontrolü: Okunan metin, Türk plaka formatına uygunluk açısından bir kontrol mekanizmasından geçer.
 
 Görsel Dil Modeli (VLM) Analizi:
-(Salesforce/blip-image-captioning-base) modeli kullanılarak araç hakkında renk model ve hareket bilgilerinden açıklama üretilir.
+BLIP modeli kullanılarak araç hakkında renk model ve hareket bilgilerinden açıklama üretilir.
 
 
 Karar Verme:
@@ -219,7 +219,7 @@ kütüphaneler eklendi, gerekli dizin ayarları ve kullanılacak cihaz seçimler
 
 ```python
 reader = easyocr.Reader(['en', 'tr'], gpu=(device == "cuda"))
-coco_model = YOLO(os.path.join(BASE_DIR, "yolov8n.pt"))
+coco_model = YOLO(os.path.join(BASE_DIR, "yolov8n.pt")) # eğitilen modeli kullan, bulamazsan hazır eğitişmiş olanı kullan
 license_plate_detector = YOLO(os.path.join(BASE_DIR, "models", "license_plate_detector.pt"))
 processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
 vlm_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base").to(device)
@@ -273,7 +273,7 @@ c.execute("""INSERT INTO gecis_loglari (plaka, arac_tipi, vlm_yorum, durum, tari
     conn.commit()
     conn.close()
 ```
-veritabanına bağlanarak o güne ait tarih ve saatle birlikte gelen aracın bilgilerini logla.
+veritabanına bağlanarak o güne ait tarih ve saatle birlikte gelen aracın bilgilerini loglandı.
 
 
 ```python
@@ -439,7 +439,7 @@ def guvenli_crop(img, x1, y1, x2, y2, pad=30):
     ]
 
 ```
-yolonun verdiği bounding boxlar dar olabileceği için alanı genişletir.
+ plaka tespiti yapan licence_plate_detection'ın verdiği bounding boxlar dar olabileceği için alanı genişletir.
 
 
 
