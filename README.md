@@ -1,12 +1,4 @@
 
-
-# BTK akademi sertifikası
-![Açıklama](GitHub_readme_img/1.png)
-
-# tübitak 2209A başvurusu
-![Açıklama](GitHub_readme_img/2.png)
-
-
 # proje videosu
 [![Videoyu izle](https://img.youtube.com/vi/gvkAfTP_aAs/maxresdefault.jpg)](https://youtu.be/gvkAfTP_aAs)
 
